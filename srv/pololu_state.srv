@@ -1,4 +1,4 @@
-int8 qid
+string name
 ---
-int8 id
+string motor
 float64 angle
