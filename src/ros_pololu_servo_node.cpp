@@ -20,13 +20,13 @@ struct motor{
 };
 const unsigned short num_motors=6;
 motor motors[]={//set defaults here
-    {"neck_pan",12,5,0.0,-45.0,45.0,255,255,-45.0,45.0},
-    {"neck_tilt",12,0,0.0,-45.0,45.0,255,255,-45.0,45.0},
-    {"face_jaw",12,1,0.0,-45.0,45.0,255,255,-45.0,45.0},//need correct motor id
-    {"face_smile",12,2,0.0,-45.0,45.0,255,255,-45.0,45.0},//
-    {"face_brows",12,9,0.0,-45.0,45.0,255,255,-45.0,45.0},//
+    {"neck_pan",12,5,2.0,-40.0,40.0,255,255,-45.0,45.0},
+    {"neck_tilt",12,0,7.0,-35.0,29.0,255,255,-45.0,45.0},
+    {"face_jaw",12,1,-39.0,-39.0,-20.0,255,255,-45.0,45.0},//need correct motor id
+    {"face_smile",12,2,-9.0,-43.0,36.0,255,255,-45.0,45.0},//
+    {"face_brows",12,9,-9.0,-43.0,36.0,255,255,-45.0,45.0},//
     {"listen_led",12,7,45.0,-45.0,45.0,255,255,-45.0,45.0}
-};
+};//probably change to pulse value so that measurements are easy to use? can also do by angle as both are unknown
 Polstro::SerialInterface* serialInterface;
 std::string portName = "/dev/ttyACM0";
 //ros_pololu_servo::servo_pololu msgTemp,msgs;
@@ -105,6 +105,11 @@ int main(int argc,char**argv)
 		ROS_ERROR("Failed to open interface\n");
 		return -1;
 	}
+    for (int i=0;i<num_motors;i++){//initialize
+        motor mtr=motors[i];
+        int ang=((mtr.default_angle-mtr.minFreeLimit)/(mtr.maxFreeLimit-mtr.minFreeLimit))*(double)channelValueRange+(double)channelMinValue;
+        serialInterface->setTargetPP(mtr.board,mtr.id,ang);
+    }
 	ros::Subscriber sub = n.subscribe("/cmd_pololu", 20, CommandCallback);
 	ros::ServiceServer service = n.advertiseService("pololu_status", status);
     ROS_INFO("Ready...");
